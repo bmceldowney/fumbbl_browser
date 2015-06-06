@@ -53,38 +53,35 @@
     console.log('entering mainCtrl');
 
     $scope.$watch('coach', debounce(function (value) {
+      if (!value) { return; }
 
-      if (!value) {
-        $state.transitionTo('home');
-        $scope.loading = false;
-        $scope.teams = [];
-        $scope.$apply();
-        return;
-      }
-
-      $scope.loading = true;
-
-      fumbblData.getTeamsByCoachName(value).then(
-        function success (result) {
-          $state.transitionTo('home.teamList');
-
-          $scope.loading = false;
-          $scope.teams = result.teams.team;
-        },
-        function error () {
-          $scope.loading = false;
-          $state.transitionTo('home');
-          $scope.teams = [];
-        });
+      $state.go('home.teamList', { coachName: value });
     }, 750));
   });
 
-  module.controller('');
+  module.controller('teamListCtrl', function ($scope, $state, $stateParams, fumbblData) {
+    if (!$stateParams.coachName) {
+      $state.go('home');
+      return;
+    }
+
+    fumbblData.getTeamsByCoachName($stateParams.coachName).then(
+      function success (result) {
+        $scope.teams = result.teams.team;
+      },
+      function error () {
+        $scope.teams = [];
+        $state.go('home');
+      });
+
+  });
 
   module.controller('teamDetailCtrl', function ($stateParams, $scope, fumbblData) {
     fumbblData.getTeamDataById($stateParams.id).then(
     function success (result) {
-      $scope.record = result.wins + ' | ' + result.ties + ' | ' + result.losses;
+      $scope.team = result;
+      console.dir(result);
+      // $scope.record = result.wins + ' | ' + result.ties + ' | ' + result.losses;
     },
     function error () {
 

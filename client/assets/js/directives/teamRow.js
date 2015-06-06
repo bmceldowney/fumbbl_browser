@@ -7,7 +7,8 @@
       link: function (scope, element) {
         fumbblData.getTeamDataById(scope.team.id).then(
           function success (result) {
-            scope.record = result.wins + ' | ' + result.ties + ' | ' + result.losses;
+            var record = result.record;
+            scope.record = record.wins + ' | ' + record.ties + ' | ' + record.losses;
           },
           function error () {
 

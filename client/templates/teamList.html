@@ -1,9 +1,11 @@
 ---
 name: home.teamList
-url: teamList
+url: teamList/:coachName
 animationIn: slideInDown
 ---
 
-<div class="grid-block" ng-repeat="team in teams">
-  <team-row class="grid-block medium-12" team="team"></team-row>
+<div class="detail-background" ng-controller="teamListCtrl">
+  <div class="grid-container" ng-repeat="team in teams">
+    <team-row class="grid-container medium-12" team="team"></team-row>
+  </div>
 </div>

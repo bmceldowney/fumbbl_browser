@@ -1,0 +1,3 @@
+API endpoints
+Match results
+https://fumbbl.com/results/359/ffb-3599749.xml

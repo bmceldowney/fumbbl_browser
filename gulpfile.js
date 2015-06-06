@@ -45,11 +45,7 @@ var paths = {
   ],
   // These files are for your app's JavaScript
   appJS: [
-    'client/assets/js/app.js',
-    'client/assets/js/lib/xml2json.js',
-    'client/assets/js/directives/teamRow.js',
-    'client/assets/js/services/Cache.js',
-    'client/assets/js/services/fumbblData.js'
+    'client/assets/js/**/*.js'
   ]
 };
 

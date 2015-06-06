@@ -5,18 +5,18 @@
 
     function getTeamDataById (id) {
       var deferred = $q.defer();
-      var record = teamDataCache.get(id);
-      if (record) {
-        return $q.when(record);
+      var team = teamDataCache.get(id);
+      if (team) {
+        return $q.when(team);
       }
 
       Parse.Cloud.run('team', { id: id }, {
         success: function(result) {
           var data = xmlToObject(result);
-          record = data.team.record;
+          team = data.team;
 
-          teamDataCache.add(id, record);
-          deferred.resolve(record);
+          teamDataCache.add(id, team);
+          deferred.resolve(team);
         },
         error: function() {
           deferred.reject();
