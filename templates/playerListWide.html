@@ -1,0 +1,6 @@
+<div class="grid-block" ng-repeat="player in team.player">
+  <div class="team-cell grid-content medium-3">{{player.name}}</div>
+  <div class="team-cell grid-content medium-3">{{player.position}}</div>
+  <div class="team-cell grid-content medium-3">{{player.playerStatistics['@currentSpps']}} spp</div>
+  <div class="team-cell grid-content medium-3">{{player.playerStatistics.games}} games</div>
+</div>
