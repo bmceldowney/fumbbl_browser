@@ -80,8 +80,11 @@
     fumbblData.getTeamDataById($stateParams.id).then(
     function success (result) {
       $scope.team = result;
-      console.dir(result);
-      // $scope.record = result.wins + ' | ' + result.ties + ' | ' + result.losses;
+      fumbblData.getRosterById(result.rosterId).then(
+        function (rosterInfo) {
+          $scope.roster = rosterInfo;
+          console.dir(rosterInfo);
+        });
     },
     function error () {
 
@@ -322,8 +325,10 @@ angular.module('application').factory('Cache', function () {
     }
 
     function getRosterById (rosterId) {
-      var promise = $q.when(Parse.Cloud.run('roster'))
-        .then();
+      var promise = $q.when(Parse.Cloud.run('roster', { id: rosterId }))
+        .then(function (result) {
+          return xmlToObject(result).roster;
+        });
 
       return promise;
     }
@@ -332,7 +337,7 @@ angular.module('application').factory('Cache', function () {
       var promise = $q.when(Parse.Cloud.run('coach', { coachName: coachName }))
         .then(
           function success(result) {
-            var data = xmlToObject(result);
+            return xmlToObject(result);
           });
 
       return promise;
@@ -340,7 +345,8 @@ angular.module('application').factory('Cache', function () {
 
     return {
       getTeamsByCoachName: getTeamsByCoachName,
-      getTeamDataById: getTeamDataById
+      getTeamDataById: getTeamDataById,
+      getRosterById: getRosterById
     };
   });
 
