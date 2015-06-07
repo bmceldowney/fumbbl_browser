@@ -80,8 +80,11 @@
     fumbblData.getTeamDataById($stateParams.id).then(
     function success (result) {
       $scope.team = result;
-      console.dir(result);
-      // $scope.record = result.wins + ' | ' + result.ties + ' | ' + result.losses;
+      fumbblData.getRosterById(result.rosterId).then(
+        function (rosterInfo) {
+          $scope.roster = rosterInfo;
+          console.dir(rosterInfo);
+        });
     },
     function error () {
 

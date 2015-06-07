@@ -3,51 +3,52 @@
   angular.module('application').service('fumbblData', function ($q, Cache) {
     var teamDataCache = new Cache(5 * 60 * 1000);
 
-    function getTeamDataById (id) {
-      var deferred = $q.defer();
-      var team = teamDataCache.get(id);
+    function getTeamDataById (teamId) {
+      var team = teamDataCache.get(teamId);
       if (team) {
         return $q.when(team);
       }
+      var promise = $q.when(Parse.Cloud.run('team', { id: teamId }))
+        .then(
+          function success(result) {
+            var data = xmlToObject(result);
+            team = data.team;
 
-      Parse.Cloud.run('team', { id: id }, {
-        success: function(result) {
-          var data = xmlToObject(result);
-          team = data.team;
+            teamDataCache.add(teamId, team);
+            return team;
+          });
 
-          teamDataCache.add(id, team);
-          deferred.resolve(team);
-        },
-        error: function() {
-          deferred.reject();
-        }
-      });
+      return promise;
+    }
 
-      return deferred.promise;
+    function getRosterById (rosterId) {
+      var promise = $q.when(Parse.Cloud.run('roster', { id: rosterId }))
+        .then(function (result) {
+          return xmlToObject(result).roster;
+        });
+
+      return promise;
     }
 
     function getTeamsByCoachName (coachName) {
-      var deferred = $q.defer();
+      var promise = $q.when(Parse.Cloud.run('coach', { coachName: coachName }))
+        .then(
+          function success(result) {
+            return xmlToObject(result);
+          });
 
-      Parse.Cloud.run('coach', { coachName: coachName }, {
-        success: function(result) {
-          var data = xmlToObject(result);
-
-          deferred.resolve(data);
-        },
-        error: function() {
-          deferred.reject();
-        }
-      });
-
-      return deferred.promise;
+      return promise;
     }
 
     return {
       getTeamsByCoachName: getTeamsByCoachName,
-      getTeamDataById: getTeamDataById
+      getTeamDataById: getTeamDataById,
+      getRosterById: getRosterById
     };
   });
+
+
+/* PRIVATE STATIC */
 
   function xmlToObject(xml) {
     var dom = null;

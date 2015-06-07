@@ -10,7 +10,7 @@ input[type="text"].loadinggif {
 }
 
 .team-cell {
-  margin: 5px 5px 5px 5px;
+  margin: 5px 0px;
 }
 
 .team-row:hover {
@@ -20,4 +20,12 @@ input[type="text"].loadinggif {
 .detail-background {
   background-color: white;
   border: 0.25rem darkolivegreen solid;
+}
+
+  .detail-background.player {
+    padding: 1rem;
+  }
+
+.center-text {
+  text-align: center;
 }

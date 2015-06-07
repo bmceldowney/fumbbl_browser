@@ -4,8 +4,35 @@ url: teamDetail/:id
 animationIn: slideInDown
 ---
 
-<div class="detail-background" ng-controller="teamDetailCtrl">
-  <div>{{ team.name }}</div>
-  <div>{{ id }}</div>
-  <div></div>
+<div class="grid-container detail-background player" class="detail-background" ng-controller="teamDetailCtrl">
+  <div class="center-text grid-content medium-12">
+    <h3>{{ team.name }}</h3>
+    <div>{{ roster.name }} team coached by {{ team.coach }}</div>
+  </div>
+  <hr />
+  <div class="grid-container medium-12 center-text">
+    <div class="grid-block medium-12">
+      <div class="grid-content medium-4">
+        <label>TV</label>
+        <div>{{team.teamValue}}</div>
+      </div>
+      <div class="grid-content medium-4">
+        <label>Treasury</label>
+        <div>{{team.treasury}}</div>
+      </div>
+      <div class="grid-content medium-4">
+        <label>Record</label>
+        <div>{{team.record.wins}} | {{team.record.ties}} | {{team.record.losses}}</div>
+      </div>
+    </div>
+  </div>
+  <hr />
+  <div class="grid-container medium-12">
+    <div class="grid-block" ng-repeat="player in team.player">
+      <div class="team-cell grid-content medium-3">{{player.name}}</div>
+      <div class="team-cell grid-content medium-3">{{player.position}}</div>
+      <div class="team-cell grid-content medium-3">{{player.playerStatistics['@currentSpps']}} spp</div>
+      <div class="team-cell grid-content medium-3">{{player.playerStatistics.games}} games</div>
+    </div>
+  </div>
 </div>
