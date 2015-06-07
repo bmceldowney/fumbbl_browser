@@ -6151,14 +6151,11 @@ input[type="text"].loadinggif {
 .team-cell {
   margin: 5px 0px; }
 
-.team-row:hover {
-  color: #FAF20A; }
-
 .detail-background {
   background-color: white;
   border: 0.25rem darkolivegreen solid; }
 
-.detail-background.player {
+.detail-background {
   padding: 1rem; }
 
 .center-text {
