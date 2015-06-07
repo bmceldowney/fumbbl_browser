@@ -94,6 +94,27 @@
 
 })();
 
+'use strict';
+(function () {
+
+  angular.module('application').directive('teamRow', function (fumbblData) {
+    return {
+      scope: { team: '=' },
+      link: function (scope, element) {
+        fumbblData.getTeamDataById(scope.team.id).then(
+          function success (result) {
+            var record = result.record;
+            scope.record = record.wins + ' | ' + record.ties + ' | ' + record.losses;
+          },
+          function error () {
+
+          });
+      },
+      templateUrl: 'templates/teamRow.html'
+    };
+  });
+})();
+
 /*	This work is licensed under Creative Commons GNU LGPL License.
 
 	License: http://creativecommons.org/licenses/LGPL/2.1/
@@ -249,27 +270,6 @@ function xml2json(xml, tab) {
    var json = X.toJson(X.toObj(X.removeWhite(xml)), xml.nodeName, "\t");
    return "{\n" + tab + (tab ? json.replace(/\t/g, tab) : json.replace(/\t|\n/g, "")) + "\n}";
 }
-
-'use strict';
-(function () {
-
-  angular.module('application').directive('teamRow', function (fumbblData) {
-    return {
-      scope: { team: '=' },
-      link: function (scope, element) {
-        fumbblData.getTeamDataById(scope.team.id).then(
-          function success (result) {
-            var record = result.record;
-            scope.record = record.wins + ' | ' + record.ties + ' | ' + record.losses;
-          },
-          function error () {
-
-          });
-      },
-      templateUrl: 'templates/teamRow.html'
-    };
-  });
-})();
 
 'use strict';
 

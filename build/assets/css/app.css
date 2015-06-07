@@ -6163,3 +6163,9 @@ input[type="text"].loadinggif {
 
 .center-text {
   text-align: center; }
+
+.sub-detail-text {
+  font-size: .9rem; }
+
+.right-justify {
+  text-align: right; }
