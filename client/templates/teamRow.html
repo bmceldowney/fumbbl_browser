@@ -1,6 +1,16 @@
-<a ui-sref="home.teamDetail({ id: {{team.id}} })" class="team-row grid-block medium-12">
-	<div class="grid-content medium-3 team-cell">{{team.name}}</div>
-	<div class="grid-content medium-2 team-cell show-for-medium">{{team.race}}</div>
-	<div class="grid-content medium-2 team-cell show-for-medium">{{team.rating}}</div>
-	<div class="grid-content medium-2 team-cell show-for-medium">{{record}}</div>
+<a ui-sref="home.teamDetail({ id: {{team.id}} })" class="show-for-medium team-row grid-block medium-12">
+  <div class="grid-content medium-4 team-cell">{{team.name}}</div>
+  <div class="grid-content medium-2 team-cell">{{team.race}}</div>
+  <div class="grid-content medium-3 team-cell">TR {{team.rating}}</div>
+  <div class="grid-content medium-3 team-cell">{{record}}</div>
+</a>
+<a ui-sref="home.teamDetail({ id: {{team.id}} })" class="show-for-small-only team-row grid-block medium-12">
+  <div class="grid-content medium-6 team-cell">
+    <div>{{team.name}}</div>
+    <div class="sub-detail-text">{{team.race}}</div>
+  </div>
+  <div class="grid-content medium-6 team-cell right-justify">
+    <div class="">TR {{team.rating}}</div>
+    <div class="sub-detail-text">{{record}}</div>
+  </div>
 </a>

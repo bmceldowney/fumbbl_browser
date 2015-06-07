@@ -40,10 +40,29 @@
       return promise;
     }
 
+    function getDivisionById (divisionId) {
+      var divisions = [
+        '',
+        'Ranked',
+        '',
+        '',
+        '',
+        'League',
+        '',
+        '',
+        '',
+        '',
+        'Blackbox'
+      ];
+
+      return divisions[divisionId];
+    }
+
     return {
       getTeamsByCoachName: getTeamsByCoachName,
       getTeamDataById: getTeamDataById,
-      getRosterById: getRosterById
+      getRosterById: getRosterById,
+      getDivisionById: getDivisionById
     };
   });
 

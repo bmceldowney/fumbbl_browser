@@ -13,19 +13,23 @@ input[type="text"].loadinggif {
   margin: 5px 0px;
 }
 
-.team-row:hover {
-  color: #FAF20A;
-}
-
 .detail-background {
   background-color: white;
   border: 0.25rem darkolivegreen solid;
 }
 
-  .detail-background.player {
+  .detail-background {
     padding: 1rem;
   }
 
 .center-text {
   text-align: center;
+}
+
+.sub-detail-text {
+  font-size: .9rem;
+}
+
+.right-justify {
+  text-align: right;
 }

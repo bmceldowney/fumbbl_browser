@@ -5,7 +5,13 @@ animationIn: slideInDown
 ---
 
 <div class="detail-background" ng-controller="teamListCtrl">
-  <div class="grid-container" ng-repeat="team in teams">
+  <h3 class="center-text">{{coachName}}</h3>
+  <hr />
+
+  <!--<div class="grid-container" ng-repeat="division in teams">
+    <div>{{division}}</div>
+  </div>
+ -->   <div class="grid-container" ng-repeat="team in teams">
     <team-row class="grid-container medium-12" team="team"></team-row>
   </div>
 </div>
