@@ -1,0 +1,1 @@
+var foundationRoutes = [{"name":"home.teamList","url":"teamList/:coachName","animationIn":"slideInDown","path":"templates/teamList.html"},{"name":"home.teamDetail","url":"teamDetail/:id","animationIn":"slideInDown","path":"templates/teamDetail.html"},{"name":"home","url":"/","path":"templates/home.html"}]; 
