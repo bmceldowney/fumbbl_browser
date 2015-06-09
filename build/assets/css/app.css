@@ -6162,7 +6162,8 @@ input[type="text"].loadinggif {
   text-align: center; }
 
 .sub-detail-text {
-  font-size: .9rem; }
+  font-size: .85rem;
+  font-style: italic; }
 
 .right-justify {
   text-align: right; }

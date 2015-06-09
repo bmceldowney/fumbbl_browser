@@ -35,82 +35,89 @@
     FastClick.attach(document.body);
   }
 
-  function debounce(func, wait) {
-    var timeout;
-    return function() {
-      var context = this;
-      var args = arguments;
-      var callback = function() {
-        func.apply(context, args);
-      };
+})();
 
-      clearTimeout(timeout);
-      timeout = setTimeout(callback, wait);
-    };
-  }
+'use strict';
 
-  module.controller('mainCtrl', function ($scope, $state, fumbblData) {
-    console.log('entering mainCtrl');
+angular.module('application').controller('mainCtrl', function ($scope, $state, fumbblData, utils) {
+  console.log('entering mainCtrl');
 
-    $scope.$watch('coach', debounce(function (value) {
-      if (!value) { return; }
+  $scope.$watch('coach', utils.debounce(function (value) {
+    if (!value) { return; }
 
-      $state.go('home.teamList', { coachName: value });
-    }, 750));
-  });
+    $state.go('home.teamList', { coachName: value });
+  }, 750));
+});
 
-  module.controller('teamListCtrl', function ($scope, $state, $stateParams, fumbblData) {
-    if (!$stateParams.coachName) {
-      $state.go('home');
-      return;
-    }
+'use strict';
 
-    fumbblData.getTeamsByCoachName($stateParams.coachName).then(
-      function success (result) {
-        $scope.coachName = $stateParams.coachName;
-        $scope.teams = result.teams.team;
-        // $scope.teams = orderTeamsByDivision(result.teams.team);
-        console.dir(result);
-      },
-      function error () {
-        $scope.coachName = '';
-        $scope.teams = [];
-        $state.go('home');
-      });
+angular.module('application').controller('playerDetailCtrl', function ($stateParams, $scope, fumbblData) {
+  var playerId = $stateParams.playerId;
+  var teamId = $stateParams.teamId;
 
-
-    function orderTeamsByDivision (teams) {
-      var divisions = {};
-
-      teams.forEach(function (team) {
-        var divisionStr = fumbblData.getDivisionById(team.division);
-        if (!divisions[divisionStr]) {
-          divisions[divisionStr] = [];
-          divisions[divisionStr].push(team);
-        }
-      });
-
-      return divisions;
-    }
-  });
-
-  module.controller('teamDetailCtrl', function ($stateParams, $scope, fumbblData) {
-    fumbblData.getTeamDataById($stateParams.id).then(
-    function success (result) {
-      $scope.team = result;
-      fumbblData.getRosterById(result.rosterId).then(
-        function (rosterInfo) {
-          $scope.roster = rosterInfo;
-          console.dir(rosterInfo);
-        });
-    },
-    function error () {
-
+  fumbblData.getTeamDataById(teamId).then(function (teamData) {
+    var players = teamData.player.filter(function (playerData) {
+      return playerData['@id'] === playerId;
     });
 
+    $scope.player = players[0];
+    $scope.stats = $scope.player.playerStatistics;
+    console.dir($scope.player);
+  });
+});
+'use strict';
+
+angular.module('application').controller('teamDetailCtrl', function ($stateParams, $scope, fumbblData) {
+  fumbblData.getTeamDataById($stateParams.id).then(
+  function success (result) {
+    $scope.team = result;
+    fumbblData.getRosterById(result.rosterId).then(
+      function (rosterInfo) {
+        $scope.roster = rosterInfo;
+      });
+  },
+  function error () {
+
   });
 
-})();
+});
+
+'use strict';
+
+angular.module('application').controller('teamListCtrl', function ($scope, $state, $stateParams, fumbblData) {
+  if (!$stateParams.coachName) {
+    $state.go('home');
+    return;
+  }
+
+  fumbblData.getTeamsByCoachName($stateParams.coachName).then(
+    function success (result) {
+      $scope.coachName = $stateParams.coachName;
+      $scope.teams = result.teams.team;
+
+      console.dir(result);
+    },
+    function error () {
+      $scope.coachName = '';
+      $scope.teams = [];
+      $state.go('home');
+    });
+
+
+  function orderTeamsByDivision (teams) {
+    var divisions = {};
+
+    teams.forEach(function (team) {
+      var divisionStr = fumbblData.getDivisionById(team.division);
+      if (!divisions[divisionStr]) {
+        divisions[divisionStr] = [];
+        divisions[divisionStr].push(team);
+      }
+    });
+
+    return divisions;
+  }
+});
 
 'use strict';
 (function () {
@@ -417,3 +424,23 @@ angular.module('application').factory('Cache', function () {
     return obj;
   }
 })();
+
+angular.module('application').service('utils', function () {
+  var service = {};
+
+  service.debounce = function (func, wait) {
+    var timeout;
+    return function() {
+      var context = this;
+      var args = arguments;
+      var callback = function() {
+        func.apply(context, args);
+      };
+
+      clearTimeout(timeout);
+      timeout = setTimeout(callback, wait);
+    };
+  }
+
+  return service;
+});

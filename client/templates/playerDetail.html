@@ -1,0 +1,68 @@
+---
+name: home.playerDetail
+url: team/:teamId/player/:playerId
+animationIn: slideInDown
+---
+
+<div class="grid-container detail-background player" class="detail-background" ng-controller="playerDetailCtrl">
+  <div class="center-text grid-content medium-12">
+    <h3>{{ player.name }}</h3>
+    <div>{{ player.position }}</div>
+  </div>
+  <hr />
+  <div class="show-for-small-only">
+    <div class="grid-container align-center small-12 center-text">
+
+      <div class="grid-block align-center small-12">
+        <div class="grid-container small-3">
+          <label>SPPs</label>
+          <div>{{stats['@currentSpps']}}</div>
+        </div>
+        <div class="grid-container small-6">
+          <label>Games played</label>
+          <div>{{stats.games}}</div>
+        </div>
+        <div class="grid-container small-3">
+          <label>MVPs</label>
+          <div>{{stats.mvps}}</div>
+        </div>
+      </div>
+
+      <br />
+
+      <div class="grid-block align-center small-12">
+        <div class="grid-container small-3">
+          <label>Blocks</label>
+          <div>{{stats.blocks}}</div>
+        </div>
+        <div class="grid-container small-6">
+          <label>Casualties</label>
+          <div>{{stats.casualties}}</div>
+        </div>
+        <div class="grid-container small-3">
+          <label>Fouls</label>
+          <div>{{stats.fouls}}</div>
+        </div>
+      </div>
+
+      <br />
+
+      <div class="grid-block align-center small-12">
+        <div class="grid-container small-3">
+          <label>Passing</label>
+          <div>{{stats.passing}}</div>
+        </div>
+        <div class="grid-container small-6">
+          <label>Touchdowns</label>
+          <div>{{stats.touchdowns}}</div>
+        </div>
+        <div class="grid-container small-3">
+          <label>Rushing</label>
+          <div>{{stats.rushing}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="show-for-medium">
+  </div>
+</div>

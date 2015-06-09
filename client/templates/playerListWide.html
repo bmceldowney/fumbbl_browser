@@ -1,6 +1,8 @@
-<div class="grid-block" ng-repeat="player in team.player">
-  <div class="team-cell grid-content medium-3">{{player.name}}</div>
-  <div class="team-cell grid-content medium-3">{{player.position}}</div>
-  <div class="team-cell grid-content medium-3">{{player.playerStatistics['@currentSpps']}} spp</div>
-  <div class="team-cell grid-content medium-3">{{player.playerStatistics.games}} games</div>
+<div ng-repeat="player in team.player">
+  <a class="grid-block" ui-sref="home.playerDetail({ teamId: {{team['@id']}}, playerId: {{player['@id']}} })">
+    <div class="team-cell grid-content medium-3">{{player.name}}</div>
+    <div class="team-cell grid-content medium-3">{{player.position}}</div>
+    <div class="team-cell grid-content medium-3">{{player.playerStatistics['@currentSpps']}} spp</div>
+    <div class="team-cell grid-content medium-3">{{player.playerStatistics.games}} games</div>
+  </a>
 </div>

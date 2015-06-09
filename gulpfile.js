@@ -142,11 +142,11 @@ gulp.task('uglify:app', function() {
   ;
 });
 
-// Starts a test server, which you can view at http://localhost:8080
+// Starts a test server, which you can view at http://localhost:3000
 gulp.task('server', ['build'], function() {
   gulp.src('./build')
     .pipe($.webserver({
-      port: 8080,
+      port: 3000,
       host: 'localhost',
       fallback: 'index.html',
       livereload: true,
