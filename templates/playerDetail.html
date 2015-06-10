@@ -1,12 +1,33 @@
 
 <div class="grid-container detail-background player" class="detail-background" ng-controller="playerDetailCtrl">
-  <div class="center-text grid-content medium-12">
+  <div class="center-text grid-content small-12">
     <h3>{{ player.name }}</h3>
     <div>{{ player.position }}</div>
   </div>
   <hr />
+
   <div class="show-for-small-only">
     <div class="grid-container align-center small-12 center-text">
+
+      <div class="grid-block align-center small-12">
+        <div class="grid-content small-3">
+          <label>M</label>
+          <div>{{attributes.movement}}</div>
+        </div>
+        <div class="grid-content small-3">
+          <label>S</label>
+          <div>{{attributes.strength}}</div>
+        </div>
+        <div class="grid-content small-3">
+          <label>Ag</label>
+          <div>{{attributes.agility}}</div>
+        </div>
+        <div class="grid-content small-3">
+          <label>AV</label>
+          <div>{{attributes.armorValue}}</div>
+        </div>
+      </div>
+      <hr />
 
       <div class="grid-block align-center small-12">
         <div class="grid-container small-3">
