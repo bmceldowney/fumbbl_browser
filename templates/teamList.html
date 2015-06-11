@@ -1,12 +1,13 @@
 
 <div class="detail-background" ng-controller="teamListCtrl">
   <h3 class="center-text">{{coachName}}</h3>
-  <hr />
 
-  <!--<div class="grid-container" ng-repeat="division in teams">
-    <div>{{division}}</div>
-  </div>
- -->   <div class="grid-container" ng-repeat="team in teams">
-    <team-row class="grid-container medium-12" team="team"></team-row>
+  <div class="grid-container" ng-repeat="division in divisions track by $index">
+    <hr ng-if="division.name" />
+    <div ng-if="division.name" class="team-cell">{{division.name}}</div>
+    <hr ng-if="division.name" />
+    <div class="grid-container" ng-repeat="team in division.teams track by $index">
+      <team-row class="grid-container medium-12" team="team"></team-row>
+    </div>
   </div>
 </div>
