@@ -5,85 +5,101 @@ animationIn: slideInDown
 ---
 
 <div class="grid-container detail-background player" class="detail-background" ng-controller="playerDetailCtrl">
-  <div class="center-text grid-content small-12">
-    <h3>{{ player.name }}</h3>
-    <div>{{ player.position }}</div>
+  <div class="center-text grid-container small-12">
+    <h3>{{ ::player.name }}</h3>
+    <div>{{ ::player.position }}</div>
   </div>
   <hr />
 
-  <div class="show-for-small-only">
-    <div class="grid-container align-center small-12 center-text">
+  <div class="grid-container align-center small-12 center-text">
 
-      <div class="grid-block align-center small-12">
-        <div class="grid-content small-3">
-          <label>M</label>
-          <div>{{attributes.movement}}</div>
-        </div>
-        <div class="grid-content small-3">
-          <label>S</label>
-          <div>{{attributes.strength}}</div>
-        </div>
-        <div class="grid-content small-3">
-          <label>Ag</label>
-          <div>{{attributes.agility}}</div>
-        </div>
-        <div class="grid-content small-3">
-          <label>AV</label>
-          <div>{{attributes.armorValue}}</div>
-        </div>
+    <div class="grid-block align-center small-12">
+      <div class="grid-content small-3">
+        <label>MA</label>
+        <div ng-class="attributeClasses.MA">{{::attributes.movement}}</div>
       </div>
-      <hr />
-
-      <div class="grid-block align-center small-12">
-        <div class="grid-container small-3">
-          <label>SPPs</label>
-          <div>{{stats['@currentSpps']}}</div>
-        </div>
-        <div class="grid-container small-6">
-          <label>Games played</label>
-          <div>{{stats.games}}</div>
-        </div>
-        <div class="grid-container small-3">
-          <label>MVPs</label>
-          <div>{{stats.mvps}}</div>
-        </div>
+      <div class="grid-content small-3">
+        <label>ST</label>
+        <div ng-class="attributeClasses.ST">{{::attributes.strength}}</div>
       </div>
-
-      <br />
-
-      <div class="grid-block align-center small-12">
-        <div class="grid-container small-3">
-          <label>Blocks</label>
-          <div>{{stats.blocks}}</div>
-        </div>
-        <div class="grid-container small-6">
-          <label>Casualties</label>
-          <div>{{stats.casualties}}</div>
-        </div>
-        <div class="grid-container small-3">
-          <label>Fouls</label>
-          <div>{{stats.fouls}}</div>
-        </div>
+      <div class="grid-content small-3">
+        <label>AG</label>
+        <div ng-class="attributeClasses.AG">{{::attributes.agility}}</div>
       </div>
+      <div class="grid-content small-3">
+        <label>AV</label>
+        <div ng-class="attributeClasses.AV">{{::attributes.armorValue}}</div>
+      </div>
+    </div>
+    <hr />
 
-      <br />
+    <!-- <div>Skills</div> -->
+    <div ng-if="skills" class="grid-block align-left small-12">
+      <div class="team-cell grid-content small-6 medium-3" ng-repeat="skill in skills track by $index">
+        {{::skill}}
+      </div>
+    </div>
+    <hr ng-if="skills" />
 
-      <div class="grid-block align-center small-12">
-        <div class="grid-container small-3">
-          <label>Passing</label>
-          <div>{{stats.passing}}</div>
-        </div>
-        <div class="grid-container small-6">
-          <label>Touchdowns</label>
-          <div>{{stats.touchdowns}}</div>
-        </div>
-        <div class="grid-container small-3">
-          <label>Rushing</label>
-          <div>{{stats.rushing}}</div>
-        </div>
+    <div class="grid-block align-center small-12">
+      <div class="grid-container small-3">
+        <label>SPPs</label>
+        <div>{{::stats['@currentSpps']}}</div>
+      </div>
+      <div class="grid-container small-6">
+        <label>Games played</label>
+        <div>{{::stats.games}}</div>
+      </div>
+      <div class="grid-container small-3">
+        <label>MVPs</label>
+        <div>{{::stats.mvps}}</div>
+      </div>
+    </div>
+
+    <br />
+
+    <div class="grid-block align-center small-12">
+      <div class="grid-container small-3">
+        <label>Blocks</label>
+        <div>{{::stats.blocks}}</div>
+      </div>
+      <div class="grid-container small-6">
+        <label>Casualties</label>
+        <div>{{::stats.casualties}}</div>
+      </div>
+      <div class="grid-container small-3">
+        <label>Fouls</label>
+        <div>{{::stats.fouls}}</div>
+      </div>
+    </div>
+
+    <br />
+
+    <div class="grid-block align-center small-12">
+      <div class="grid-container small-3">
+        <label>Passing</label>
+        <div>{{::stats.passing}}</div>
+      </div>
+      <div class="grid-container small-6">
+        <label>Touchdowns</label>
+        <div>{{::stats.touchdowns}}</div>
+      </div>
+      <div class="grid-container small-3">
+        <label>Rushing</label>
+        <div>{{::stats.rushing}}</div>
       </div>
     </div>
   </div>
-  <div class="show-for-medium">
+  <hr />
+
+
+  <!-- <div>Injuries</div> -->
+  <div ng-show="injuries.length" class="grid-block align-center small-12">
+    <div class="team-cell grid-content small-6" ng-repeat="injury in injuries track by $index">
+      {{::injury}}
+    </div>
   </div>
+  <div class="center-text" ng-hide="injuries.length">No injuries!</div>
+  <hr />
+
 </div>

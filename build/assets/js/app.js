@@ -38,117 +38,6 @@
 })();
 
 'use strict';
-
-angular.module('application').controller('mainCtrl', function ($scope, $state, fumbblData, utils) {
-  console.log('entering mainCtrl');
-
-  $scope.$watch('coach', utils.debounce(function (value) {
-    if (!value) { return; }
-
-    $state.go('home.teamList', { coachName: value });
-  }, 750));
-});
-
-'use strict';
-
-angular.module('application').controller('playerDetailCtrl', function ($q, $stateParams, $scope, fumbblData, utils) {
-  var playerId = $stateParams.playerId;
-  var teamId = $stateParams.teamId;
-
-  fumbblData.getTeamDataById(teamId)
-    .then(setTeamData)
-    .then(setRosterData)
-
-  function setRosterData(roster) {
-    var position = roster.position.filter(function (position) {
-      return position['@id'] === $scope.player.positionId;
-    });
-
-    if (position.length) {
-      $scope.position = position[0];
-    }
-
-    var attributes = {
-      movement: $scope.position.movement,
-      strength: $scope.position.strength,
-      agility: $scope.position.agility,
-      armorValue: $scope.position.armour,
-    };
-
-    $scope.attributes = attributes;
-
-    console.dir($scope.position);
-  }
-
-  function setTeamData (teamData) {
-    var players = teamData.player.filter(function (playerData) {
-      return playerData['@id'] === playerId;
-    });
-
-    $scope.player = players[0];
-    $scope.stats = $scope.player.playerStatistics;
-
-    console.dir($scope.player);
-
-    return fumbblData.getRosterById(teamData.rosterId);
-  }
-
-});
-'use strict';
-
-angular.module('application').controller('teamDetailCtrl', function ($stateParams, $scope, fumbblData) {
-  fumbblData.getTeamDataById($stateParams.id).then(
-  function success (result) {
-    $scope.team = result;
-    fumbblData.getRosterById(result.rosterId).then(
-      function (rosterInfo) {
-        $scope.roster = rosterInfo;
-      });
-  },
-  function error () {
-
-  });
-
-});
-
-'use strict';
-
-angular.module('application').controller('teamListCtrl', function ($scope, $state, $stateParams, fumbblData) {
-  if (!$stateParams.coachName) {
-    $state.go('home');
-    return;
-  }
-
-  fumbblData.getTeamsByCoachName($stateParams.coachName).then(
-    function success (result) {
-      $scope.coachName = $stateParams.coachName;
-      $scope.teams = result.teams.team;
-
-      console.dir(result);
-    },
-    function error () {
-      $scope.coachName = '';
-      $scope.teams = [];
-      $state.go('home');
-    });
-
-
-  function orderTeamsByDivision (teams) {
-    var divisions = {};
-
-    teams.forEach(function (team) {
-      var divisionStr = fumbblData.getDivisionById(team.division);
-      if (!divisions[divisionStr]) {
-        divisions[divisionStr] = [];
-        divisions[divisionStr].push(team);
-      }
-    });
-
-    return divisions;
-  }
-});
-
-'use strict';
 (function () {
 
   angular.module('application').directive('teamRow', function (fumbblData) {
@@ -398,19 +287,12 @@ angular.module('application').factory('Cache', function () {
     }
 
     function getDivisionById (divisionId) {
-      var divisions = [
-        '',
-        'Ranked',
-        '',
-        '',
-        '',
-        'League',
-        '',
-        '',
-        '',
-        '',
-        'Blackbox'
-      ];
+      var divisions = [];
+      divisions[1] = 'Ranked';
+      divisions[3] = 'Stunty Leeg';
+      divisions[5] = 'League';
+      divisions[10] = 'Blackbox';
+      divisions[200] = 'FFB Test Division';
 
       return divisions[divisionId];
     }
@@ -472,4 +354,187 @@ angular.module('application').service('utils', function () {
   }
 
   return service;
+});
+'use strict';
+
+angular.module('application').controller('mainCtrl', function ($scope, $state, fumbblData, utils) {
+  console.log('entering mainCtrl');
+
+  $scope.$watch('coach', utils.debounce(function (value) {
+    if (!value) { return; }
+
+    $state.go('home.teamList', { coachName: value });
+  }, 750));
+});
+
+'use strict';
+
+angular.module('application').controller('playerDetailCtrl', function ($q, $stateParams, $scope, fumbblData, utils) {
+  var playerId = $stateParams.playerId;
+  var teamId = $stateParams.teamId;
+  var positionSkills = [];
+  var playerSkills = [];
+  var injuries = [];
+  var attributeMap = {
+    'MA': 'movement',
+    'ST': 'strength',
+    'AG': 'agility',
+    'AV': 'armorValue'
+  }
+
+  $scope.attributeClasses = {
+    MA: '',
+    ST: '',
+    AG: '',
+    AV: ''
+  }
+
+  fumbblData.getTeamDataById(teamId)
+    .then(setTeamData)
+    .then(setRosterData)
+
+  function setRosterData(roster) {
+    var position = roster.position.filter(function (position) {
+      return position['@id'] === $scope.player.positionId;
+    });
+
+    if (position.length) {
+      $scope.position = position[0];
+    }
+
+    $scope.position.skillList && (positionSkills = Array.isArray($scope.position.skillList.skill) ? $scope.position.skillList.skill : [$scope.position.skillList.skill]);
+    $scope.player.skillList && (playerSkills = Array.isArray($scope.player.skillList.skill) ? $scope.player.skillList.skill : [$scope.player.skillList.skill]);
+
+    var attributes = {
+      movement: $scope.position.movement,
+      strength: $scope.position.strength,
+      agility: $scope.position.agility,
+      armorValue: $scope.position.armour,
+    };
+
+    $scope.attributes = attributes;
+
+    $scope.player.injuryList && (injuries = Array.isArray($scope.player.injuryList.injury) ? $scope.player.injuryList.injury : [$scope.player.injuryList.injury]);
+    injuries = injuries.map(mapInjuries);
+
+    $scope.injuries = injuries;
+
+    var skills = positionSkills
+                  .concat(playerSkills)
+                  .filter(filterStatBoosts);
+
+    $scope.skills = skills;
+
+    console.dir($scope.position);
+
+
+
+    /* Helpers */
+
+    function mapInjuries (injury) {
+      var statBreak = injury.match(/\(-([A-Z]{2})\)/g);
+
+      if (statBreak && statBreak[0]) {
+        applyStatBreak(statBreak[0]);
+      }
+
+      return injury;
+    }
+
+    function filterStatBoosts (boost) {
+      var isStatBoost = boost.indexOf('+') === 0;
+
+      if (isStatBoost) {
+        applyStatBoost(boost);
+      }
+
+      return !isStatBoost;
+    }
+
+    function applyStatBoost (statBoost) {
+      boostName = statBoost.substr(1);
+      var attributeName = attributeMap[boostName];
+      $scope.attributes[attributeName]++;
+      $scope.attributeClasses[boostName] = 'boosted';
+    }
+
+    function applyStatBreak (statBreak) {
+      breakName = statBreak.substr(2, 2);
+      var attributeName = attributeMap[breakName];
+      $scope.attributes[attributeName]--;
+      $scope.attributeClasses[breakName] = 'broke';
+    }
+  }
+
+  function setTeamData (teamData) {
+    var players = teamData.player.filter(function (playerData) {
+      return playerData['@id'] === playerId;
+    });
+
+    $scope.player = players[0];
+    $scope.stats = $scope.player.playerStatistics;
+
+    console.dir($scope.player);
+
+    return fumbblData.getRosterById(teamData.rosterId);
+  }
+
+});
+'use strict';
+
+angular.module('application').controller('teamDetailCtrl', function ($stateParams, $scope, fumbblData) {
+  fumbblData.getTeamDataById($stateParams.id).then(
+  function success (result) {
+    console.dir(result);
+    $scope.team = result;
+    fumbblData.getRosterById(result.rosterId).then(
+      function (rosterInfo) {
+        $scope.roster = rosterInfo;
+      });
+  },
+  function error () {
+
+  });
+
+});
+
+'use strict';
+
+angular.module('application').controller('teamListCtrl', function ($scope, $state, $stateParams, fumbblData) {
+  if (!$stateParams.coachName) {
+    $state.go('home');
+    return;
+  }
+
+  fumbblData.getTeamsByCoachName($stateParams.coachName).then(
+    function success (result) {
+      $scope.coachName = $stateParams.coachName;
+      $scope.divisions = orderTeamsByDivision(result.teams.team);
+
+      console.dir($scope.divisions);
+      console.dir(result);
+    },
+    function error () {
+      $scope.coachName = '';
+      $scope.teams = [];
+      $state.go('home');
+    });
+
+
+  function orderTeamsByDivision (teams) {
+    var divisions = [];
+
+    teams.forEach(function (team) {
+      var divisionStr = fumbblData.getDivisionById(team.division);
+      if (!divisions[team.division]) {
+        divisions[team.division] = {};
+        divisions[team.division].name = divisionStr;
+        divisions[team.division].teams = [];
+      }
+
+      divisions[team.division].teams.push(team);
+    });
+
+    return divisions;
+  }
 });

@@ -41,19 +41,12 @@
     }
 
     function getDivisionById (divisionId) {
-      var divisions = [
-        '',
-        'Ranked',
-        '',
-        '',
-        '',
-        'League',
-        '',
-        '',
-        '',
-        '',
-        'Blackbox'
-      ];
+      var divisions = [];
+      divisions[1] = 'Ranked';
+      divisions[3] = 'Stunty Leeg';
+      divisions[5] = 'League';
+      divisions[10] = 'Blackbox';
+      divisions[200] = 'FFB Test Division';
 
       return divisions[divisionId];
     }

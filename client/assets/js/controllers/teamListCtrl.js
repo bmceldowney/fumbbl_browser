@@ -9,8 +9,9 @@ angular.module('application').controller('teamListCtrl', function ($scope, $stat
   fumbblData.getTeamsByCoachName($stateParams.coachName).then(
     function success (result) {
       $scope.coachName = $stateParams.coachName;
-      $scope.teams = result.teams.team;
+      $scope.divisions = orderTeamsByDivision(result.teams.team);
 
+      console.dir($scope.divisions);
       console.dir(result);
     },
     function error () {
@@ -21,14 +22,17 @@ angular.module('application').controller('teamListCtrl', function ($scope, $stat
 
 
   function orderTeamsByDivision (teams) {
-    var divisions = {};
+    var divisions = [];
 
     teams.forEach(function (team) {
       var divisionStr = fumbblData.getDivisionById(team.division);
-      if (!divisions[divisionStr]) {
-        divisions[divisionStr] = [];
-        divisions[divisionStr].push(team);
+      if (!divisions[team.division]) {
+        divisions[team.division] = {};
+        divisions[team.division].name = divisionStr;
+        divisions[team.division].teams = [];
       }
+
+      divisions[team.division].teams.push(team);
     });
 
     return divisions;

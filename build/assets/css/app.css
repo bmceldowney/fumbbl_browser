@@ -6167,3 +6167,9 @@ input[type="text"].loadinggif {
 
 .right-justify {
   text-align: right; }
+
+.broke {
+  color: red; }
+
+.boosted {
+  color: green; }
