@@ -4,6 +4,7 @@
   var module = angular.module('application', [
     'ui.router',
     'ngAnimate',
+    'LocalStorageModule',
 
     //foundation
     'foundation',

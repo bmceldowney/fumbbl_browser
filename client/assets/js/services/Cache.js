@@ -1,23 +1,26 @@
 'use strict';
 
-angular.module('application').factory('Cache', function () {
+angular.module('application').factory('Cache', function (localStorageService) {
   var Cache = function (lifespan) {
-    this.store = {};
     this.lifespan = lifespan;
   };
 
   function add (key, value) {
-    this.store[key] = {};
-    this.store[key].data = value;
-    this.store[key].timestamp = Date.now();
+    var item = {
+          value: value,
+          timestamp: Date.now()
+        }
+
+    localStorageService.set(key, item);
   }
 
   function get (key) {
-    var item = this.store[key];
+    var item = localStorageService.get(key);
+
     if (!item) { return null; }
     if (Date.now() - item.timestamp > this.lifespan) { return null; }
 
-    return item.data;
+    return item.value;
   }
 
   Cache.prototype = {

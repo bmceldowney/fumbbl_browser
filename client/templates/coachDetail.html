@@ -1,0 +1,35 @@
+---
+name: home.coachDetail
+url: coachDetail/:coachName
+animationIn: slideInDown
+---
+
+<div class="detail-background" ng-controller="coachDetailCtrl">
+  <h3 class="center-text">{{coachName}}</h3>
+
+  <div class="grid-container" ng-repeat="division in divisions track by $index">
+    <hr ng-if="division.name" />
+    <div ng-if="division.name" class="team-cell">{{division.name}}</div>
+    <hr ng-if="division.name" />
+    <div class="grid-container" ng-repeat="team in division.teams track by $index">
+
+      <a ui-sref="home.teamDetail({ id: {{team.id}} })" class="show-for-medium team-row grid-block medium-12">
+        <div class="grid-content medium-5 team-cell">{{team.name}}</div>
+        <div class="grid-content medium-3 team-cell">{{team.race}}</div>
+        <div class="grid-content medium-2 team-cell">TR {{team.rating}}</div>
+        <div class="grid-content medium-2 team-cell right-justify ">{{team.record}}</div>
+      </a>
+      <a ui-sref="home.teamDetail({ id: {{team.id}} })" class="show-for-small-only team-row grid-block medium-12">
+        <div class="grid-content small-7 team-cell">
+          <div>{{team.name}}</div>
+          <div class="sub-detail-text">{{team.race}}</div>
+        </div>
+        <div class="grid-content small-5 team-cell right-justify">
+          <div class="">TR {{team.rating}}</div>
+          <div class="sub-detail-text">{{team.record}}</div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</div>

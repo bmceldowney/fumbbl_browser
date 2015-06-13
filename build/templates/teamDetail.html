@@ -1,6 +1,6 @@
 
 <div class="grid-container detail-background player" class="detail-background" ng-controller="teamDetailCtrl">
-  <div class="center-text grid-content medium-12">
+  <div class="center-text grid-container medium-12">
     <h3>{{ team.name }}</h3>
     <div>{{ roster.name }} team coached by {{ team.coach }}</div>
   </div>
@@ -23,9 +23,29 @@
   </div>
   <hr />
   <div class="grid-container medium-12">
-    <zf-interchange>
-      <div media="small" src="templates/playerListNarrow.html"></div>
-      <div media="medium" src="templates/playerListWide.html"></div>
-    </zf-interchange>
+    <div class="show-for-small-only">
+      <div ng-repeat="player in team.player">
+        <a class="grid-block" ui-sref="home.playerDetail({ teamId: {{team['@id']}}, playerId: {{player['@id']}} })">
+          <div class="team-cell grid-content small-8">
+            <div>{{::player['@nr']}} {{::player.name}}</div>
+            <div class="sub-detail-text">{{::player.position}}</div>
+          </div>
+          <div class="team-cell sub-detail-text grid-content small-4 right-justify">
+            <div>{{::player.playerStatistics['@currentSpps']}} spp</div>
+            <div>{{::player.playerStatistics.games}} games</div>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="show-for-medium">
+      <div ng-repeat="player in team.player">
+        <a class="grid-block" ui-sref="home.playerDetail({ teamId: {{team['@id']}}, playerId: {{player['@id']}} })">
+          <div class="team-cell grid-content medium-5">{{player.name}}</div>
+          <div class="team-cell grid-content medium-2">{{player.position}}</div>
+          <div class="team-cell grid-content medium-2">{{player.playerStatistics['@currentSpps']}} spp</div>
+          <div class="team-cell grid-content medium-3">{{player.playerStatistics.games}} games</div>
+        </a>
+      </div>
+    </div>
   </div>
 </div>

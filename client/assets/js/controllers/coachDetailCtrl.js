@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('application').controller('teamListCtrl', function ($scope, $state, $stateParams, fumbblData) {
+angular.module('application').controller('coachDetailCtrl', function ($scope, $state, $stateParams, fumbblData) {
   if (!$stateParams.coachName) {
     $state.go('home');
     return;
@@ -11,7 +11,6 @@ angular.module('application').controller('teamListCtrl', function ($scope, $stat
       $scope.coachName = $stateParams.coachName;
       $scope.divisions = orderTeamsByDivision(result.teams.team);
 
-      console.dir($scope.divisions);
       console.dir(result);
     },
     function error () {
@@ -20,12 +19,15 @@ angular.module('application').controller('teamListCtrl', function ($scope, $stat
       $state.go('home');
     });
 
-
   function orderTeamsByDivision (teams) {
     var divisions = [];
 
     teams.forEach(function (team) {
       var divisionStr = fumbblData.getDivisionById(team.division);
+      getTeamRecordDataAsync(team.id).then(function (recordData) {
+        team.record = recordData;
+      });
+
       if (!divisions[team.division]) {
         divisions[team.division] = {};
         divisions[team.division].name = divisionStr;
@@ -36,5 +38,13 @@ angular.module('application').controller('teamListCtrl', function ($scope, $stat
     });
 
     return divisions;
+  }
+
+  function getTeamRecordDataAsync (teamId) {
+    return fumbblData.getTeamDataById(teamId).then(
+      function success (result) {
+        var record = result.record;
+        return record.wins + ' | ' + record.ties + ' | ' + record.losses;
+      });
   }
 });

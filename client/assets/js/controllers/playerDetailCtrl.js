@@ -63,13 +63,19 @@ angular.module('application').controller('playerDetailCtrl', function ($q, $stat
     /* Helpers */
 
     function mapInjuries (injury) {
-      var statBreak = injury.match(/\(-([A-Z]{2})\)/g);
+      var injuryText = injury;
+
+      if (injury['#text']) {
+        injuryText = injury['#text'];
+      }
+
+      var statBreak = injuryText.match(/\(-([A-Z]{2})\)/g);
 
       if (statBreak && statBreak[0]) {
         applyStatBreak(statBreak[0]);
       }
 
-      return injury;
+      return injuryText;
     }
 
     function filterStatBoosts (boost) {

@@ -4,6 +4,7 @@
   var module = angular.module('application', [
     'ui.router',
     'ngAnimate',
+    'LocalStorageModule',
 
     //foundation
     'foundation',
@@ -38,26 +39,149 @@
 })();
 
 'use strict';
+
+angular.module('application').factory('Cache', function (localStorageService) {
+  var Cache = function (lifespan) {
+    this.lifespan = lifespan;
+  };
+
+  function add (key, value) {
+    var item = {
+          value: value,
+          timestamp: Date.now()
+        }
+
+    localStorageService.set(key, item);
+  }
+
+  function get (key) {
+    var item = localStorageService.get(key);
+
+    if (!item) { return null; }
+    if (Date.now() - item.timestamp > this.lifespan) { return null; }
+
+    return item.value;
+  }
+
+  Cache.prototype = {
+    add: add,
+    get: get
+  };
+
+  return Cache;
+});
+
+'use strict';
 (function () {
+  angular.module('application').service('fumbblData', function ($q, Cache) {
+    var teamDataCache = new Cache(5 * 60 * 1000);
 
-  angular.module('application').directive('teamRow', function (fumbblData) {
-    return {
-      scope: { team: '=' },
-      link: function (scope, element) {
-        fumbblData.getTeamDataById(scope.team.id).then(
-          function success (result) {
-            var record = result.record;
-            scope.record = record.wins + ' | ' + record.ties + ' | ' + record.losses;
-          },
-          function error () {
+    function getTeamDataById (teamId) {
+      var team = teamDataCache.get(teamId);
+      if (team) {
+        return $q.when(team);
+      }
+      var promise = $q.when(Parse.Cloud.run('team', { id: teamId }))
+        .then(
+          function success(result) {
+            var data = xmlToObject(result);
+            team = data.team;
 
+            teamDataCache.add(teamId, team);
+            return team;
           });
-      },
-      templateUrl: 'templates/teamRow.html'
+
+      return promise;
+    }
+
+    function getRosterById (rosterId) {
+      var promise = $q.when(Parse.Cloud.run('roster', { id: rosterId }))
+        .then(function (result) {
+          return xmlToObject(result).roster;
+        });
+
+      return promise;
+    }
+
+    function getTeamsByCoachName (coachName) {
+      var promise = $q.when(Parse.Cloud.run('coach', { coachName: coachName }))
+        .then(
+          function success(result) {
+            return xmlToObject(result);
+          });
+
+      return promise;
+    }
+
+    function getDivisionById (divisionId) {
+      var divisions = [];
+      divisions[1] = 'Ranked';
+      divisions[3] = 'Stunty Leeg';
+      divisions[5] = 'League';
+      divisions[10] = 'Blackbox';
+      divisions[200] = 'FFB Test Division';
+
+      return divisions[divisionId];
+    }
+
+    return {
+      getTeamsByCoachName: getTeamsByCoachName,
+      getTeamDataById: getTeamDataById,
+      getRosterById: getRosterById,
+      getDivisionById: getDivisionById
     };
   });
+
+
+/* PRIVATE STATIC */
+
+  function xmlToObject(xml) {
+    var dom = null;
+
+    if (window.DOMParser) {
+      try {
+         dom = (new DOMParser()).parseFromString(xml, 'text/xml');
+      }
+      catch (e) { dom = null; }
+    }
+    else if (window.ActiveXObject) {
+      try {
+        dom = new window.ActiveXObject('Microsoft.XMLDOM');
+        dom.async = false;
+        if (!dom.loadXML(xml)) {
+          console.log(dom.parseError.reason + dom.parseError.srcText);
+        } // parse error
+      }
+
+      catch (e) { dom = null; }
+    }
+
+    var json = xml2json(dom, '  ');
+    var obj = JSON.parse(json);
+
+    return obj;
+  }
 })();
 
+angular.module('application').service('utils', function () {
+  var service = {};
+
+  service.debounce = function (func, wait) {
+    var timeout;
+    return function() {
+      var context = this;
+      var args = arguments;
+      var callback = function() {
+        func.apply(context, args);
+      };
+
+      clearTimeout(timeout);
+      timeout = setTimeout(callback, wait);
+    };
+  }
+
+  return service;
+});
 /*	This work is licensed under Creative Commons GNU LGPL License.
 
 	License: http://creativecommons.org/licenses/LGPL/2.1/
@@ -216,154 +340,64 @@ function xml2json(xml, tab) {
 
 'use strict';
 
-angular.module('application').factory('Cache', function () {
-  var Cache = function (lifespan) {
-    this.store = {};
-    this.lifespan = lifespan;
-  };
-
-  function add (key, value) {
-    this.store[key] = {};
-    this.store[key].data = value;
-    this.store[key].timestamp = Date.now();
+angular.module('application').controller('coachDetailCtrl', function ($scope, $state, $stateParams, fumbblData) {
+  if (!$stateParams.coachName) {
+    $state.go('home');
+    return;
   }
 
-  function get (key) {
-    var item = this.store[key];
-    if (!item) { return null; }
-    if (Date.now() - item.timestamp > this.lifespan) { return null; }
+  fumbblData.getTeamsByCoachName($stateParams.coachName).then(
+    function success (result) {
+      $scope.coachName = $stateParams.coachName;
+      $scope.divisions = orderTeamsByDivision(result.teams.team);
 
-    return item.data;
+      console.dir(result);
+    },
+    function error () {
+      $scope.coachName = '';
+      $scope.teams = [];
+      $state.go('home');
+    });
+
+  function orderTeamsByDivision (teams) {
+    var divisions = [];
+
+    teams.forEach(function (team) {
+      var divisionStr = fumbblData.getDivisionById(team.division);
+      getTeamRecordDataAsync(team.id).then(function (recordData) {
+        team.record = recordData;
+      });
+
+      if (!divisions[team.division]) {
+        divisions[team.division] = {};
+        divisions[team.division].name = divisionStr;
+        divisions[team.division].teams = [];
+      }
+
+      divisions[team.division].teams.push(team);
+    });
+
+    return divisions;
   }
 
-  Cache.prototype = {
-    add: add,
-    get: get
-  };
-
-  return Cache;
+  function getTeamRecordDataAsync (teamId) {
+    return fumbblData.getTeamDataById(teamId).then(
+      function success (result) {
+        var record = result.record;
+        return record.wins + ' | ' + record.ties + ' | ' + record.losses;
+      });
+  }
 });
 
 'use strict';
-(function () {
-  angular.module('application').service('fumbblData', function ($q, Cache) {
-    var teamDataCache = new Cache(5 * 60 * 1000);
 
-    function getTeamDataById (teamId) {
-      var team = teamDataCache.get(teamId);
-      if (team) {
-        return $q.when(team);
-      }
-      var promise = $q.when(Parse.Cloud.run('team', { id: teamId }))
-        .then(
-          function success(result) {
-            var data = xmlToObject(result);
-            team = data.team;
-
-            teamDataCache.add(teamId, team);
-            return team;
-          });
-
-      return promise;
-    }
-
-    function getRosterById (rosterId) {
-      var promise = $q.when(Parse.Cloud.run('roster', { id: rosterId }))
-        .then(function (result) {
-          return xmlToObject(result).roster;
-        });
-
-      return promise;
-    }
-
-    function getTeamsByCoachName (coachName) {
-      var promise = $q.when(Parse.Cloud.run('coach', { coachName: coachName }))
-        .then(
-          function success(result) {
-            return xmlToObject(result);
-          });
-
-      return promise;
-    }
-
-    function getDivisionById (divisionId) {
-      var divisions = [];
-      divisions[1] = 'Ranked';
-      divisions[3] = 'Stunty Leeg';
-      divisions[5] = 'League';
-      divisions[10] = 'Blackbox';
-      divisions[200] = 'FFB Test Division';
-
-      return divisions[divisionId];
-    }
-
-    return {
-      getTeamsByCoachName: getTeamsByCoachName,
-      getTeamDataById: getTeamDataById,
-      getRosterById: getRosterById,
-      getDivisionById: getDivisionById
-    };
-  });
-
-
-/* PRIVATE STATIC */
-
-  function xmlToObject(xml) {
-    var dom = null;
-
-    if (window.DOMParser) {
-      try {
-         dom = (new DOMParser()).parseFromString(xml, 'text/xml');
-      }
-      catch (e) { dom = null; }
-    }
-    else if (window.ActiveXObject) {
-      try {
-        dom = new window.ActiveXObject('Microsoft.XMLDOM');
-        dom.async = false;
-        if (!dom.loadXML(xml)) {
-          console.log(dom.parseError.reason + dom.parseError.srcText);
-        } // parse error
-      }
-
-      catch (e) { dom = null; }
-    }
-
-    var json = xml2json(dom, '  ');
-    var obj = JSON.parse(json);
-
-    return obj;
-  }
-})();
-
-angular.module('application').service('utils', function () {
-  var service = {};
-
-  service.debounce = function (func, wait) {
-    var timeout;
-    return function() {
-      var context = this;
-      var args = arguments;
-      var callback = function() {
-        func.apply(context, args);
-      };
-
-      clearTimeout(timeout);
-      timeout = setTimeout(callback, wait);
-    };
-  }
-
-  return service;
-});
-'use strict';
-
-angular.module('application').controller('mainCtrl', function ($scope, $state, fumbblData, utils) {
-  console.log('entering mainCtrl');
+angular.module('application').controller('homeCtrl', function ($scope, $state, fumbblData, utils) {
+  console.log('entering homeCtrl');
 
   $scope.$watch('coach', utils.debounce(function (value) {
     if (!value) { return; }
 
-    $state.go('home.teamList', { coachName: value });
+    $state.go('home.coachDetail', { coachName: value });
   }, 750));
 });
 
@@ -432,13 +466,19 @@ angular.module('application').controller('playerDetailCtrl', function ($q, $stat
     /* Helpers */
 
     function mapInjuries (injury) {
-      var statBreak = injury.match(/\(-([A-Z]{2})\)/g);
+      var injuryText = injury;
+
+      if (injury['#text']) {
+        injuryText = injury['#text'];
+      }
+
+      var statBreak = injuryText.match(/\(-([A-Z]{2})\)/g);
 
       if (statBreak && statBreak[0]) {
         applyStatBreak(statBreak[0]);
       }
 
-      return injury;
+      return injuryText;
     }
 
     function filterStatBoosts (boost) {
@@ -496,45 +536,4 @@ angular.module('application').controller('teamDetailCtrl', function ($stateParam
 
   });
 
-});
-
-'use strict';
-
-angular.module('application').controller('teamListCtrl', function ($scope, $state, $stateParams, fumbblData) {
-  if (!$stateParams.coachName) {
-    $state.go('home');
-    return;
-  }
-
-  fumbblData.getTeamsByCoachName($stateParams.coachName).then(
-    function success (result) {
-      $scope.coachName = $stateParams.coachName;
-      $scope.divisions = orderTeamsByDivision(result.teams.team);
-
-      console.dir($scope.divisions);
-      console.dir(result);
-    },
-    function error () {
-      $scope.coachName = '';
-      $scope.teams = [];
-      $state.go('home');
-    });
-
-
-  function orderTeamsByDivision (teams) {
-    var divisions = [];
-
-    teams.forEach(function (team) {
-      var divisionStr = fumbblData.getDivisionById(team.division);
-      if (!divisions[team.division]) {
-        divisions[team.division] = {};
-        divisions[team.division].name = divisionStr;
-        divisions[team.division].teams = [];
-      }
-
-      divisions[team.division].teams.push(team);
-    });
-
-    return divisions;
-  }
 });
